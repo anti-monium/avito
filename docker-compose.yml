@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres:
+    restart: always
+    image: postgres:latest
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_HOST=5433
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./internal/pg/data:/var/lib/postgresql/data
+
+  avito:
+    depends_on:
+      - postgres
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: avito
+    ports:
+     - "9090:9090"
+    environment:
+      SERVER_HOST: "9090"
+      SERVER_PORT: ":9090"
+      POSTGRES_HOST: "5433"
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "postgres"
+      PG_URL: "postgres://postgres:postgres@postgres/postgres?sslmode=disable"
+      LOG_LEVEL: "DEV_LOG"
+
+    command: ["./avito"]
