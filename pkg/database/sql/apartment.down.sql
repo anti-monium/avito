@@ -1,10 +1,16 @@
 DROP INDEX IF EXISTS house_id_flat_id; 
 DROP INDEX IF EXISTS user_email;
 
-DROP TABLE IF EXISTS houses;
+DROP TABLE IF EXISTS houses CASCADE;
 DROP TABLE IF EXISTS subscribers;
 DROP TABLE IF EXISTS flats;
 DROP TABLE IF EXISTS users;
 
 DROP TYPE IF EXISTS user_type;
 DROP TYPE IF EXISTS moderation_status;
+
+DROP EXTENSION IF EXISTS "pgcrypto";
+
+DROP FUNCTION IF EXISTS generate_flat_id;
+
+DROP TRIGGER IF EXISTS set_flat_id ON flats;

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Sender struct{}
@@ -25,7 +27,7 @@ func (s *Sender) SendEmail(ctx context.Context, recipient string, message string
 		return errors.New("internal error")
 	}
 
-	fmt.Printf("send message '%s' to '%s'\n", message, recipient)
+	log.Info(fmt.Sprintf("send message '%s' to '%s'\n", message, recipient))
 
 	return nil
 }

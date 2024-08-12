@@ -16,7 +16,7 @@ func (db *ApartmentDatabase) Close() error {
 
 func (db *ApartmentDatabase) CreateHouse(address, developer string, year int) (*House, error) {
 	query := `INSERT INTO houses (address, developer, year)
-VALUES ($1, 'ABC Developers', 2022) RETURNING id, address, year, developer, created_at, updated_at;`
+VALUES ($1, $2, $3) RETURNING id, address, year, developer, created_at, updated_at;`
 	house := &House{}
 	err := db.QueryRow(query, address, developer, year).Scan(
 		&house.Id,

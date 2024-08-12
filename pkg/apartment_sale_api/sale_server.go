@@ -64,7 +64,7 @@ func (this *SaleServer) PostFlatCreate(c *gin.Context) {
 	type requestInput struct {
 		HouseId int `json:"house_id" binding:"required"`
 		Price   int `json:"price" binding:"required"`
-		Rooms   int `json:"rooms,omitempty" binding:"required"`
+		Rooms   int `json:"rooms" binding:"-"`
 	}
 	var input requestInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -83,7 +83,7 @@ func (this *SaleServer) PostHouseCreate(c *gin.Context) {
 	type requestInput struct {
 		Address   string `json:"address" binding:"required"`
 		Year      int    `json:"year" binding:"required"`
-		Developer string `json:"developer,omitempty" binding:""`
+		Developer string `json:"developer" binding:"-"`
 	}
 	var input requestInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -91,7 +91,7 @@ func (this *SaleServer) PostHouseCreate(c *gin.Context) {
 		return
 	}
 
-	house, err := this.db.CreateHouse(input.Address, "", input.Year)
+	house, err := this.db.CreateHouse(input.Address, input.Developer, input.Year)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -103,7 +103,7 @@ func (this *SaleServer) PostFlatUpdate(c *gin.Context) {
 	type requestInput struct {
 		HouseId int    `json:"house_id" binding:"required"`
 		Id      int    `json:"id" binding:"required"`
-		Status  string `json:"status,omitempty" binding:"required"`
+		Status  string `json:"status" binding:"-"`
 	}
 	var input requestInput
 	if err := c.ShouldBindJSON(&input); err != nil {

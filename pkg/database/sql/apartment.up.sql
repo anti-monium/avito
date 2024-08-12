@@ -18,8 +18,9 @@ CREATE TABLE subscribers (
 );
 
 CREATE TABLE flats (
-    id SERIAL PRIMARY KEY,
-    house_id INT NOT NULL REFERENCES houses(id) ON DELETE CASCADE,
+    house_id INT,
+    id SERIAL,
+    PRIMARY KEY (house_id, id),
     price INT NOT NULL,
     rooms INT NOT NULL,
     status moderation_status
@@ -35,3 +36,18 @@ CREATE TABLE users (
 );
 
 CREATE INDEX IF NOT EXISTS user_email ON users (email);
+
+CREATE OR REPLACE FUNCTION generate_flat_id()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Получаем максимальный id для текущего house_id
+    NEW.id := COALESCE((SELECT MAX(id) FROM flats WHERE house_id = NEW.house_id), 0) + 1;
+    RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER set_flat_id
+BEFORE INSERT ON flats
+FOR EACH ROW
+EXECUTE FUNCTION generate_flat_id();
