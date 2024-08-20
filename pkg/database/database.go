@@ -158,12 +158,12 @@ VALUES ($1, $2, $3) RETURNING UID;`
 	return uid, nil
 }
 
-func (db *ApartmentDatabase) GetUser(email string) (*User, error) {
+func (db *ApartmentDatabase) GetUser(uid string) (*User, error) {
 	query := `SELECT *
 FROM users
-WHERE email = $1;`
+WHERE uid = $1;`
 	user := &User{}
-	err := db.QueryRow(query, email).Scan(
+	err := db.QueryRow(query, uid).Scan(
 		&user.UserId,
 		&user.Email,
 		&user.Password,

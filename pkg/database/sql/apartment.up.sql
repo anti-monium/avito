@@ -40,7 +40,6 @@ CREATE INDEX IF NOT EXISTS user_email ON users (email);
 CREATE OR REPLACE FUNCTION generate_flat_id()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Получаем максимальный id для текущего house_id
     NEW.id := COALESCE((SELECT MAX(id) FROM flats WHERE house_id = NEW.house_id), 0) + 1;
     RETURN NEW;
 END;
