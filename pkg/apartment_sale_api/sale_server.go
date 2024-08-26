@@ -21,14 +21,23 @@ func NewSaleServer(db database.IApartmentStorage) *SaleServer {
 	return &SaleServer{db}
 }
 
+func getUserType(c *gin.Context) (userType string) {
+	value, exists := c.Get("user_type")
+	if exists {
+		userType = value.(string)
+	} else {
+		userType = "client"
+	}
+	return
+}
+
 func (this *SaleServer) GetHouseById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	// TODO
-	userType := "client"
+	userType := getUserType(c)
 
 	flats, err := this.db.GetFlatList(id, userType)
 	if err != nil {
@@ -91,6 +100,12 @@ func (this *SaleServer) PostHouseCreate(c *gin.Context) {
 		return
 	}
 
+	userType := getUserType(c)
+	if userType != "moderator" {
+		c.Status(http.StatusUnauthorized)
+		return
+	}
+
 	house, err := this.db.CreateHouse(input.Address, input.Developer, input.Year)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
@@ -108,6 +123,12 @@ func (this *SaleServer) PostFlatUpdate(c *gin.Context) {
 	var input requestInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	userType := getUserType(c)
+	if userType != "moderator" {
+		c.Status(http.StatusUnauthorized)
 		return
 	}
 

@@ -30,16 +30,16 @@ func main() {
 	server := api.NewSaleServer(db)
 
 	// noAuth
-	//router.GET("/dummyLogin/:user_type", server.GetDummyLogin)
-	//router.POST("/login", server.PostLogin)
-	//router.POST("/register", server.PostRegister)
+	router.GET("/dummyLogin/:user_type", server.GetDummyLogin)
+	router.POST("/login", server.PostLogin)
+	router.POST("/register", server.PostRegister)
 	// authOnly
-	router.GET("/house/:id", server.GetHouseById)
-	router.POST("/house/:id/subscribe", server.PostHouseSubscribe)
-	router.POST("/flat/create", server.PostFlatCreate)
+	router.GET("/house/:id", api.RequireAuth, server.GetHouseById)
+	router.POST("/house/:id/subscribe", api.RequireAuth, server.PostHouseSubscribe)
+	router.POST("/flat/create", api.RequireAuth, server.PostFlatCreate)
 	// moderationsOnly
-	router.POST("/house/create", server.PostHouseCreate)
-	router.POST("/flat/update", server.PostFlatUpdate)
+	router.POST("/house/create", api.RequireAuth, server.PostHouseCreate)
+	router.POST("/flat/update", api.RequireAuth, server.PostFlatUpdate)
 
 	router.Run(os.Getenv("SERVER_PORT"))
 }
