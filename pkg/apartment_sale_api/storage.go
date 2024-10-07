@@ -1,1 +1,0 @@
-package apartment_sale_api

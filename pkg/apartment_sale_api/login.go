@@ -12,6 +12,14 @@ import (
 
 var someKey = []byte("someKey")
 
+func ParseUserToken(token *jwt.Token) (interface{}, error) {
+	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+	}
+
+	return someKey, nil
+}
+
 func generateUserToken(user_type string) (string, error) {
 	claims := jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
@@ -91,35 +99,4 @@ func (this *SaleServer) PostRegister(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"user_id": uid})
-}
-
-func RequireAuth(c *gin.Context) {
-	tokenString, err := c.Cookie("Authorization")
-	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-	}
-
-	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-
-		return someKey, nil
-	})
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		expiresAt, err := claims.GetExpirationTime()
-		if err != nil || time.Now().Unix() > expiresAt.Unix() {
-			c.AbortWithStatus(http.StatusUnauthorized)
-		}
-
-		user_type, err := claims.GetSubject()
-		if err != nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
-		}
-		c.Set("user_type", user_type)
-		c.Next()
-	} else {
-		c.AbortWithStatus(http.StatusUnauthorized)
-	}
 }

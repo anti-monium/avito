@@ -3,6 +3,7 @@ package main
 import (
 	api "avito_bootcamp/pkg/apartment_sale_api"
 	database "avito_bootcamp/pkg/database"
+	midware "avito_bootcamp/pkg/middleware"
 	"fmt"
 	"os"
 
@@ -27,6 +28,9 @@ func main() {
 	log.Info(fmt.Sprint(db))
 
 	router := gin.Default()
+	router.Use(gin.Recovery())
+	router.Use(midware.LoggingMiddleware)
+
 	server := api.NewSaleServer(db)
 
 	// noAuth
@@ -34,12 +38,12 @@ func main() {
 	router.POST("/login", server.PostLogin)
 	router.POST("/register", server.PostRegister)
 	// authOnly
-	router.GET("/house/:id", api.RequireAuth, server.GetHouseById)
-	router.POST("/house/:id/subscribe", api.RequireAuth, server.PostHouseSubscribe)
-	router.POST("/flat/create", api.RequireAuth, server.PostFlatCreate)
+	router.GET("/house/:id", midware.RequireAuth, server.GetHouseById)
+	router.POST("/house/:id/subscribe", midware.RequireAuth, server.PostHouseSubscribe)
+	router.POST("/flat/create", midware.RequireAuth, server.PostFlatCreate)
 	// moderationsOnly
-	router.POST("/house/create", api.RequireAuth, server.PostHouseCreate)
-	router.POST("/flat/update", api.RequireAuth, server.PostFlatUpdate)
+	router.POST("/house/create", midware.RequireAuth, server.PostHouseCreate)
+	router.POST("/flat/update", midware.RequireAuth, server.PostFlatUpdate)
 
 	router.Run(os.Getenv("SERVER_PORT"))
 }
